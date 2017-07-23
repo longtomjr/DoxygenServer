@@ -12,6 +12,8 @@ from flask import Flask, request, abort
 
 app = Flask(__name__)
 
+if os.environ.get('USE_PROXYFIX', None) == 'true':
+    from werkzeug.contrib.fixers import ProxyFix
 
 @app.route("/", methods=['POST', 'GET'])
 def index():
@@ -68,4 +70,6 @@ def index():
 
 
 if __name__ == "__main__":
+    if os.environ.get('USE_PROXYFIX', None) == 'true':
+        app.wsgi_app = ProxyFix(app.wsgi_app)
     app.run()
