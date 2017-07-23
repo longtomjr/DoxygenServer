@@ -21,6 +21,8 @@ def index():
         # Store the IP address of the requester
         request_ip = ipaddress.ip_address(u'{0}'.format(request.remote_addr))
 
+        print(request_ip)
+
         hook_blocks = requests.get('https://api.github.com/meta').json()[
             'hooks']
 
