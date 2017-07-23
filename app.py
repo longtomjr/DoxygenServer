@@ -9,7 +9,7 @@ import subprocess
 import requests
 import ipaddress
 import hmac
-from haslib import sha1
+from hashlib import sha1
 from flask import Flask, request, abort
 
 app = Flask(__name__)
