@@ -13,17 +13,13 @@ from flask import Flask, request, abort
 app = Flask(__name__)
 
 
-def get_github_ips():
-    """Gets the ipaddress used by github to send webhooks"""
-    return requests.get('https://api.github.com/meta').json()['hooks']
-
-
 @app.route("/", methods=['POST'])
 def index():
     # Checks if the ip is in the github ip ranges.
-    ips = get_github_ips()
-    print(ips)
-    for block in ips():
+    # Store the IP address blocks that github uses for hook requests.
+    hook_blocks = requests.get('https://api.github.com/meta').json()['hooks']
+
+    for block in hook_blocks:
         ip = ipaddress.ip_address(u'%s' % request.remote_addr)
         if ipaddress.ip_address(ip) in ipaddress.ip_network(block):
             break
