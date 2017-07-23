@@ -21,7 +21,9 @@ def get_github_ips():
 @app.route("/", methods=['POST'])
 def index():
     # Checks if the ip is in the github ip ranges.
-    for block in get_github_ips():
+    ips = get_github_ips()
+    print(ips)
+    for block in ips():
         ip = ipaddress.ip_address(u'%s' % request.remote_addr)
         if ipaddress.ip_address(ip) in ipaddress.ip_network(block):
             break
