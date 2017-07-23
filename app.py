@@ -8,6 +8,8 @@ import json
 import subprocess
 import requests
 import ipaddress
+import hmac
+from haslib import sha1
 from flask import Flask, request, abort
 
 app = Flask(__name__)
@@ -15,6 +17,8 @@ app = Flask(__name__)
 #if os.environ.get('USE_PROXYFIX', None) == 'true':
 from werkzeug.contrib.fixers import ProxyFix
 app.wsgi_app = ProxyFix(app.wsgi_app)
+
+print("EnvSecret = "os.environ.get('SECRET', None))
 
 @app.route("/", methods=['POST', 'GET'])
 def index():
@@ -51,14 +55,30 @@ def index():
     }
 
     match = re.match(r"refs/heads/(?P<branch>.*)", payload['ref'])
-    repo = None
 
     if match:
         repo_meta['branch'] = match.groupdict()['branch']
         repo = repos.get('{owner}/{name}/branch:{branch}'.format(**repo_meta),
                          None)
-    if not repo:
-        repo = repos.get('{owner}/{name}'.format(**repo_meta), None)
+        if not repo:
+            repo = repos.get('{owner}/{name}'.format(**repo_meta), None)
+
+        if repo and repo.get('path', None):
+            # Check if POST request signature is valid
+            key = repo.get('key', None)
+            if key:
+                signature = request.headers.get('X-Hub-Signature').split('=')[
+                    1]
+                if type(key) == str:
+                    key = key.encode()
+                mac = hmac.new(key, msg=request.data, digestmod=sha1)
+                if not hmac.compare_digest(mac.hexdigest(), signature):
+                    abort(403)
+
+        if repo.get('action', None):
+            for action in repo['action']:
+                subp = subprocess.Popen(action, cwd=repo.get('path', '.'))
+                subp.wait()
 
     if repo and repo.get('path', None):
         if repo.get('action', None):
