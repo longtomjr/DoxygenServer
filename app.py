@@ -61,30 +61,23 @@ def index():
         if not repo:
             repo = repos.get('{owner}/{name}'.format(**repo_meta), None)
 
-        if repo and repo.get('path', None):
-            # Check if POST request signature is valid
-            key = os.environ.get('SECRET', None)
-            if key:
-                signature = request.headers.get('X-Hub-Signature').split('=')[
-                    1]
-                if type(key) == str:
-                    key = key.encode()
-                mac = hmac.new(key, msg=request.data, digestmod=sha1)
-                if not hmac.compare_digest(mac.hexdigest(), signature):
-                    abort(403)
-
-        if repo.get('action', None):
-            for action in repo['action']:
-                subp = subprocess.Popen(action, cwd=repo.get('path', '.'))
-                subp.wait()
-
     if repo and repo.get('path', None):
-        if repo.get('action', None):
-            for action in repo['action']:
-                subprocess.Popen(action, cwd=repo['path'])
-        else:
-            subprocess.Popen(
-                ["git", "pull", "origin", "master"], cwd=repo['path'])
+        # Check if POST request signature is valid
+        key = os.environ.get('SECRET', None)
+        if key:
+            signature = request.headers.get('X-Hub-Signature').split('=')[
+                1]
+            if type(key) == str:
+                key = key.encode()
+            mac = hmac.new(key, msg=request.data, digestmod=sha1)
+            if not hmac.compare_digest(mac.hexdigest(), signature):
+                abort(403)
+
+    if repo.get('action', None):
+        for action in repo['action']:
+            subp = subprocess.Popen(action, cwd=repo.get('path', '.'))
+            subp.wait()
+
     return 'OK'
 
 
