@@ -18,8 +18,6 @@ app = Flask(__name__)
 from werkzeug.contrib.fixers import ProxyFix
 app.wsgi_app = ProxyFix(app.wsgi_app)
 
-print("EnvSecret = " + os.environ.get('SECRET', None))
-
 @app.route("/", methods=['POST', 'GET'])
 def index():
     if request.method == 'GET':
@@ -65,7 +63,7 @@ def index():
 
         if repo and repo.get('path', None):
             # Check if POST request signature is valid
-            key = repo.get('key', None)
+            key = os.environ.get('SECRET', None)
             if key:
                 signature = request.headers.get('X-Hub-Signature').split('=')[
                     1]
