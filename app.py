@@ -72,4 +72,5 @@ def index():
 if __name__ == "__main__":
     if os.environ.get('USE_PROXYFIX', None) == 'true':
         app.wsgi_app = ProxyFix(app.wsgi_app)
+        print("using werkzeug")
     app.run()
