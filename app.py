@@ -18,7 +18,7 @@ app = Flask(__name__)
 from werkzeug.contrib.fixers import ProxyFix
 app.wsgi_app = ProxyFix(app.wsgi_app)
 
-print("EnvSecret = "os.environ.get('SECRET', None))
+print("EnvSecret = " + os.environ.get('SECRET', None))
 
 @app.route("/", methods=['POST', 'GET'])
 def index():
