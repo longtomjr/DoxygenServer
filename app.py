@@ -18,7 +18,7 @@ def index():
     # Checks if the ip is in the github ip ranges.
     # Store the IP address blocks that github uses for hook requests.
     hook_blocks = requests.get('https://api.github.com/meta').json()['hooks']
-
+    print(hook_blocks)
     for block in hook_blocks:
         ip = ipaddress.ip_address(u'%s' % request.remote_addr)
         if ipaddress.ip_address(ip) in ipaddress.ip_network(block):
