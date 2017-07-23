@@ -18,7 +18,7 @@ def get_github_ips():
     return requests.get('https://api.github.com/meta').json()['hooks']
 
 
-@app.route("/")
+@app.route("/", methods=['POST'])
 def index():
     # Checks if the ip is in the github ip ranges.
     for block in get_github_ips():
