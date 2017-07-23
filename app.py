@@ -54,3 +54,7 @@ def index():
             subprocess.Popen(
                 ["git", "pull", "origin", "master"], cwd=repo['path'])
     return 'OK'
+
+
+if __name__ == "__main__":
+    app.run()
