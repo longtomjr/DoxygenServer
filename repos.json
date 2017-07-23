@@ -1,6 +1,6 @@
 {
     "longtomjr/PorcDocs": {
-        "path": "/PorcDocs",
+        "path": "PorcDocs",
         "action":[ [  "python3", "run.py" ] ]
     }
 
