@@ -13,18 +13,24 @@ from flask import Flask, request, abort
 app = Flask(__name__)
 
 
-@app.route("/", methods=['POST'])
+@app.route("/", methods=['POST', 'GET'])
 def index():
-    # Checks if the ip is in the github ip ranges.
-    # Store the IP address blocks that github uses for hook requests.
-    hook_blocks = requests.get('https://api.github.com/meta').json()['hooks']
-    print(hook_blocks)
-    for block in hook_blocks:
-        ip = ipaddress.ip_address(u'%s' % request.remote_addr)
-        if ipaddress.ip_address(ip) in ipaddress.ip_network(block):
-            break
-    else:
-        abort(403)
+    if request.method == 'GET':
+        return 'OK'
+    elif request.method == 'POST':
+        # Store the IP address of the requester
+        request_ip = ipaddress.ip_address(u'{0}'.format(request.remote_addr))
+
+        hook_blocks = requests.get('https://api.github.com/meta').json()[
+            'hooks']
+
+        # Check if the POST request is from github.com or GHE
+        for block in hook_blocks:
+            if ipaddress.ip_address(request_ip) in ipaddress.ip_network(block):
+                break  # the remote_addr is within the network range of github.
+        else:
+            if str(request_ip) != '127.0.0.1':
+                abort(403)
 
     if request.headers.get('X-GitHub-Event') == "ping":
         return json.dumps({'msg': 'Hi!'})
